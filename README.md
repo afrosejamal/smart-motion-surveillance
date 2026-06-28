@@ -1,223 +1,111 @@
-# 🎥 Smart Motion & Object Detection System
+# 🎥 Smart Motion Surveillance
 
-> An AI-powered real-time motion detection and object tracking system built with **YOLOv8**, **OpenCV**, and **PyTorch** for intelligent surveillance and monitoring.
+### *It doesn't just see movement — it understands it.*
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)
-![OpenCV](https://img.shields.io/badge/OpenCV-Computer%20Vision-green)
-![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-red)
-![PyTorch](https://img.shields.io/badge/PyTorch-Deep%20Learning-orange)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+Most motion-detection scripts panic at a flickering light or a moving shadow. This one doesn't. It only raises an alert when **real motion overlaps with a real object** — built on a three-layer pipeline of background subtraction, YOLOv8 object detection, and a hand-built multi-object tracker.
+
+📸 *Demo screenshots/video coming soon*
 
 ---
 
-# 📌 Overview
+## 🧠 The Core Idea
 
-Smart Motion & Object Detection is a real-time computer vision application that combines **motion detection**, **YOLOv8 object detection**, **face detection**, and **multi-object tracking** into a single intelligent surveillance system.
-
-Instead of detecting every object continuously, the system first detects motion using background subtraction and then identifies moving objects using **YOLOv8**, making the application both efficient and accurate.
-
-Whenever motion is detected, the application automatically captures screenshots of detected objects and stores them for future analysis.
-
----
-
-# ✨ Features
-
-* 🎥 Real-time webcam monitoring
-* 🚶 Motion Detection using Background Subtraction (MOG2)
-* 🤖 YOLOv8 Object Detection
-* 😀 Face Detection using Haar Cascade
-* 📍 Multi-Object Tracking with Centroid Tracker
-* 📸 Automatic Screenshot Capture
-* ✂️ Cropped Object Image Saving
-* ⚡ Live FPS Monitoring
-* 🖥 Clean Information Dashboard
-* 🔍 Motion Region Analysis
-* 🚗 Detects People, Vehicles & Other Objects
-
----
-
-# 🛠 Tech Stack
-
-### Programming Language
-
-* Python
-
-### Computer Vision
-
-* OpenCV
-
-### Deep Learning
-
-* YOLOv8 (Ultralytics)
-* PyTorch
-
-### Libraries
-
-* NumPy
-* Requests
-
----
-
-# 🏗 System Workflow
-
-```text
-Webcam
-   │
-   ▼
-Capture Video Frame
-   │
-   ▼
-Background Subtraction (MOG2)
-   │
-   ▼
-Motion Detection
-   │
-   ▼
-YOLOv8 Object Detection
-   │
-   ▼
-Face Detection
-   │
-   ▼
-Centroid Tracking
-   │
-   ▼
-Screenshot Capture
-   │
-   ▼
-Save Full Frame + Cropped Object
+```
+   Motion detected?  ──┐
+                        ├──►  Overlap?  ──►  ✅ Log it (with cooldown)
+   Object detected?  ──┘                ──►  ❌ Ignore the noise
 ```
 
----
-
-# 📂 Project Structure
-
-```text
-smart-motion-object-detection/
-
-│── movement_analysis.py
-│── requirements.txt
-│── README.md
-│── LICENSE
-│── .gitignore
-│
-├── demo/
-│     demo.mp4
-│
-├── screenshots/
-│     home.png
-│     detection.png
-│     tracking.png
-│     screenshot_capture.png
-```
+A curtain blowing in the wind is *motion* but not an *object*. A parked car is an *object* but not *motion*. This system only cares about the intersection of both — which is what actually matters in real surveillance.
 
 ---
 
-# ⚙ Installation
+## ⚙️ Three Layers, Working Together
 
-## Clone Repository
+| Layer | What it does | How |
+|---|---|---|
+| 🌀 **Motion Layer** | Flags *where* something changed | MOG2 background subtraction + contour filtering |
+| 🎯 **Detection Layer** | Identifies *what* it is | YOLOv8 (person, car, bus...) + Haar Cascade for faces |
+| 🔢 **Tracking Layer** | Remembers *who's who* across frames | Custom centroid tracker — built from scratch, no external library |
+
+The tracker is the part I'm most proud of — it assigns persistent IDs, tolerates brief disappearances (occlusion), and enforces a per-object screenshot cooldown so the same person walking past doesn't flood your folder with 40 nearly-identical images.
+
+---
+
+## ✨ Features at a Glance
+
+- 🧠 **Smart triggering** — overlap-based logging, not raw pixel-change spam
+- 🆔 **Persistent object IDs** — custom centroid tracker, not a black-box library
+- ⏱️ **Per-object cooldown** — one object, one sane number of screenshots
+- 🖼️ **Dual capture** — full scene *and* a clean, padded crop of the object
+- 📊 **Live HUD overlay** — motion score, object count, FPS, status, rendered in-frame
+- ⌨️ **Manual override** — force a screenshot or toggle overlays without restarting
+
+---
+
+## 🛠️ Built With
+
+`OpenCV` · `Ultralytics YOLOv8` · `PyTorch` · `NumPy`
+
+---
+
+## 🚀 Quickstart
 
 ```bash
-git clone https://github.com/afrosejamal/smart-motion-object-detection.git
-
-cd smart-motion-object-detection
-```
-
-## Install Dependencies
-
-```bash
+git clone https://github.com/afrosejamal/smart-motion-surveillance.git
+cd smart-motion-surveillance
 pip install -r requirements.txt
-```
-
-## Run
-
-```bash
 python movement_analysis.py
 ```
 
----
+YOLOv8n weights download automatically on first run — no manual setup needed.
 
-# 🎯 How It Works
-
-1. Captures live video from webcam.
-2. Applies Background Subtraction (MOG2).
-3. Detects motion regions.
-4. Runs YOLOv8 on moving objects.
-5. Detects faces using Haar Cascade.
-6. Tracks each object using Centroid Tracking.
-7. Assigns a unique ID to every object.
-8. Captures screenshots automatically.
-9. Saves:
-
-   * Full Frame
-   * Cropped Object Image
+| Key | Action |
+|---|---|
+| `q` | Quit |
+| `s` | Manual screenshot |
+| `d` | Toggle detection overlay |
 
 ---
 
+## 🔍 Under the Hood
 
-
-# 📊 Key Features Implemented
-
-✔ Motion Detection
-
-✔ YOLOv8 Object Detection
-
-✔ Face Detection
-
-✔ Multi-Object Tracking
-
-✔ Automatic Screenshot Capture
-
-✔ Object Cropping
-
-✔ FPS Monitoring
-
-✔ Motion Analysis
-
-✔ Live Information Panel
-
-✔ Webcam Surveillance
+1. Each frame is blurred and run through `MOG2` background subtraction to isolate movement
+2. Contours above a minimum area become motion candidates
+3. The custom `CentroidTracker` matches these to existing tracked IDs by nearest distance — new ID if unmatched, forgotten after too many missed frames
+4. YOLOv8 runs in parallel, classifying everything in frame
+5. A screenshot fires only when a tracked centroid sits inside a motion region **and** overlaps a YOLO box by >20% of its area — and only if that object's cooldown has expired
 
 ---
 
-# 🚀 Future Improvements
+## 🔐 Privacy & Ethical Use
 
-* Email Alert System
-* Telegram Notifications
-* Intrusion Detection
-* Cloud Storage
-* Multi-Camera Support
-* Person Re-identification
-* Web Dashboard
-* Streamlit Interface
-* Docker Deployment
-* GPU Optimization
+Built as a computer vision learning project — not a tool for unauthorized surveillance.
+
+- Only run this where you own the space or have clear consent to monitor
+- Check your local laws around recording people
+- 100% local — no cloud upload, no external data transmission
 
 ---
 
-# 💻 Skills Demonstrated
+## ⚠️ Known Limitations
 
-* Computer Vision
-* Deep Learning
-* Object Detection
-* Motion Detection
-* Multi-Object Tracking
-* YOLOv8
-* OpenCV
-* PyTorch
-* Image Processing
-* Python Development
+- Fixed single-camera angle, no PTZ/multi-camera support
+- Tracker can lose identity during fast motion or heavy occlusion
+- CPU-only inference is noticeably slower than CUDA-enabled GPU
+
+## 🔮 Roadmap
+
+- [ ] Add demo video/screenshots
+- [ ] Push alerts (email/notification) on detection
+- [ ] Swap in DeepSORT for stronger occlusion handling
+- [ ] Configurable "ignore zones" within the frame
 
 ---
 
-# 👩‍💻 Author
+## 👤 Author
 
 **Afrose Fathima J**
+📧 afrosepvt@gmail.com · 🔗 [LinkedIn](http://www.linkedin.com/in/afrose-fathima-jamal-492b57291)
 
-Artificial Intelligence & Data Science Graduate
-
-LinkedIn:
-https://www.linkedin.com/in/afrose-fathima-jamal-492b57291
-
----
-
+⭐ *If this caught your eye, a star helps it reach more people.*
